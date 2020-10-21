@@ -8,7 +8,9 @@ class App extends React.Component {
     super();
     this.state = {
       products: data.products,
-      cartItems: [],
+      cartItems: localStorage.getItem("cartItems")
+        ? JSON.parse(localStorage.getItem("cartItems"))
+        : [],
       size: "",
       sort: "",
     };
@@ -16,10 +18,20 @@ class App extends React.Component {
     this.filterProducts = this.filterProducts.bind(this);
   }
   removeFromCart = (product) => {
-    let cartItem = this.state.cartItems;
-    this.setState({
-      cartItems: cartItem.filter((item) => item._id !== product._id),
-    });
+    let cartItems = this.state.cartItems;
+    this.setState(
+      {
+        cartItems: cartItems.filter((item) => item._id !== product._id),
+      },
+      localStorage.setItem(
+        "cartItems",
+        JSON.stringify(cartItems.filter((item) => item._id !== product._id))
+      )
+    );
+    // localStorage.setItem("cartItems", JSON.stringify(this.state.cartItems));
+  };
+  createOrder = (order) => {
+    console.log(order);
   };
   addToCart = (product) => {
     const cartItems = this.state.cartItems;
@@ -35,6 +47,7 @@ class App extends React.Component {
       cartItems.push({ ...product, count: 1 });
     }
     this.setState({ cartItems });
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
   };
   sortProducts(e) {
     const sort = e.target.value;
@@ -92,6 +105,7 @@ class App extends React.Component {
             </div>
             <div className="sidebar">
               <Cart
+                createOrder={this.createOrder}
                 removeFromCart={this.removeFromCart}
                 cartItems={this.state.cartItems}
               />
